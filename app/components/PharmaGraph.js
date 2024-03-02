@@ -1,17 +1,27 @@
-import React from 'react';
 import { Line } from 'react-chartjs-2';
-import { Chart as ChartJS } from 'chart.js/auto'; // This will auto-register the chart type
+import { useTimeStore } from '../_utils/store.js';
+import { useDosageStore } from '../_utils/store.js';
+import { useEntriesStore } from '../_utils/store.js';
+import { useShowGraphStore } from '../_utils/store.js';
 
-const PharmaGraph = ({ dosage, time }) => {
-  // Function to calculate concentration (placeholder for demonstration)
+const PharmaGraph = ({  }) => {
+  const showGraph = useShowGraphStore((state) => state.showGraph);
+  const setShowGraph = useShowGraphStore((state) => state.setShowGraph);
+  const entries = useEntriesStore((state) => state.entries);
+  const setEntries = useEntriesStore((state) => state.setEntries);
+  const currentTime = useTimeStore((state) => state.currentTime);
+  const setDosage = useDosageStore((state) => state.setDosage);
+  const dosage = useDosageStore((state) => state.dosage);
+
+
   const calculateConcentration = (dosage, time) => {
     // Convert time to hours for this calculation
     const hours = time / 60;
 
     // Define key points in the curve
     const absorptionEnd = 1; // Absorption ends at 1 hour
-    const peakConcentration = dosage * 1.5; // Assume peak is 1.5 times the dosage for visual effect
-    const eliminationStart = 2; // Start elimination after 2 hours
+    const peakConcentration = dosage * 1; // Assume peak is 1.5 times the dosage for visual effect
+    const eliminationStart = 3; // Start elimination after 2 hours
     const totalDuration = 6; // Curve ends at 6 hours
 
     if (hours <= absorptionEnd) {

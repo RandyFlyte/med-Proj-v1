@@ -1,30 +1,27 @@
 'use client';
 import React, { useState } from 'react';
 import PharmaGraph from './PharmaGraph';
+import { useTimeStore } from '../_utils/store.js';
+import { useDosageStore } from '../_utils/store.js';
+import { useEntriesStore } from '../_utils/store.js';
+import { useShowGraphStore } from '../_utils/store.js';
 
 const DosageForm = () => {
-  const [dosage, setDosage] = useState('');
-  const [showGraph, setShowGraph] = useState(false);
-
-  // Helper function to format the current date and time
-  const formatDateTimeLocal = (date) => {
-    const year = date.getFullYear();
-    const month = `${date.getMonth() + 1}`.padStart(2, '0');
-    const day = `${date.getDate()}`.padStart(2, '0');
-    const hours = `${date.getHours()}`.padStart(2, '0');
-    const minutes = `${date.getMinutes()}`.padStart(2, '0');
-    return `${year}-${month}-${day}T${hours}:${minutes}`;
-  };
-
-  // Initialize date state with the current date and time
-  const [date, setDate] = useState(formatDateTimeLocal(new Date()));
+  const showGraph = useShowGraphStore((state) => state.showGraph);
+  const setShowGraph = useShowGraphStore((state) => state.setShowGraph);
+  const entries = useEntriesStore((state) => state.entries);
+  const setEntries = useEntriesStore((state) => state.setEntries);
+  const currentTime = useTimeStore((state) => state.currentTime);
+  const setDosage = useDosageStore((state) => state.setDosage);
+  const dosage = useDosageStore((state) => state.dosage);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log(`Dosage: ${dosage}, Date: ${date}`);
-    setShowGraph(true); // Show the graph after form submission
-    // Handle form submission here
+    const newEntry = { dosage: parseFloat(dosage), date };
+    setEntries([...entries, newEntry]);
+    setShowGraph(true);
   };
+  const dosageTime = new Date(currentTime).toLocaleTimeString();
 
   return (
     <div className='max-w-md mx-auto mt-10'>
@@ -56,8 +53,8 @@ const DosageForm = () => {
             type='datetime-local'
             id='date'
             className='shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline'
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
+            value={currentTime}
+            onChange={(e) => setCurrentTime(new Date(e.target.value))}
           />
         </div>
         <div className='flex items-center justify-between'>
@@ -68,10 +65,17 @@ const DosageForm = () => {
           </button>
         </div>
       </form>
+      {entries.length > 0 && (
+        <div>
+          <h3>Last Entry:</h3>
+          <p>Dosage: {entries[entries.length - 1].dosage} mg</p>
+          <p>Time: {entries[entries.length - 1].time}</p>
+        </div>
+      )}
       {/* Graph */}
       <div className='max-w-md mx-auto mt-10'>
         {/* Form goes here */}
-        {showGraph && <PharmaGraph dosage={parseFloat(dosage)} time={date} />}
+        {showGraph && <PharmaGraph />}
       </div>
     </div>
   );
